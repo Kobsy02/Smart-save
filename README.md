@@ -119,3 +119,119 @@ Coupons for consumers
   </script>
 </body>
 </html>
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Keyboard, Alert } from 'react-native';
+
+const coupons = [
+  { store: "Target", code: "SAVE10", discount: 10 },
+  { store: "Amazon", code: "SPRING20", discount: 20 },
+  { store: "Walmart", code: "FREESHIP", discount: 0 }
+];
+
+const findBestCoupon = (store) => {
+  const trimmedStore = store.trim().toLowerCase();
+  const filtered = coupons.filter(c => c.store.toLowerCase() === trimmedStore);
+  if (filtered.length === 0) return null;
+  return filtered.reduce((a, b) => a.discount > b.discount ? a : b);
+};
+
+export default function App() {
+  const [store, setStore] = useState('');
+  const [couponResult, setCouponResult] = useState(null);
+
+  const handleFindCoupon = () => {
+    Keyboard.dismiss();
+    if (store === '') {
+      Alert.alert("Input Required", "Please enter a store name.");
+      setCouponResult(null);
+      return;
+    }
+    const bestCoupon = findBestCoupon(store);
+    setCouponResult(bestCoupon);
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>SmartSave Pay</Text>
+      <Text style={styles.subtitle}>
+        Find the best coupon for your store and save at checkout!
+      </Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter store name (e.g., Amazon)"
+        value={store}
+        onChangeText={setStore}
+      />
+      <TouchableOpacity style={styles.button} onPress={handleFindCoupon}>
+        <Text style={styles.buttonText}>Find Coupon</Text>
+      </TouchableOpacity>
+
+      {couponResult !== null && (
+        <View style={styles.resultContainer}>
+          {couponResult ? (
+            <Text style={styles.resultText}>
+              Best coupon for {store.trim()}: {couponResult.code} (
+              {couponResult.discount}% off)
+            </Text>
+          ) : (
+            <Text style={styles.resultText}>
+              No coupons available for "{store.trim()}"
+            </Text>
+          )}
+        </View>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f3f3f3',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#0070f3',
+    marginBottom: 10
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 20,
+    textAlign: 'center'
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    fontSize: 16,
+    backgroundColor: '#fff'
+  },
+  button: {
+    backgroundColor: '#0070f3',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    marginTop: 20
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16
+  },
+  resultContainer: {
+    marginTop: 30,
+    paddingHorizontal: 10
+  },
+  resultText: {
+    fontSize: 18,
+    color: '#0070f3',
+    textAlign: 'center'
+  }
+});
